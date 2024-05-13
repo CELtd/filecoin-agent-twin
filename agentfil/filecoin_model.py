@@ -522,9 +522,14 @@ class FilecoinModel(mesa.Model):
         power_stats_df['date'] = pd.to_datetime(power_stats_df['date'])
         self.filecoin_df['date'] = pd.to_datetime(self.filecoin_df['date'])
 
+        print(power_stats_df.iloc[0]['date'], power_stats_df.iloc[-1]['date'])
+        print(self.filecoin_df.iloc[0]['date'], self.filecoin_df.iloc[-1]['date'])
+
         # merge this into the master filecoin description dataframe
         self.filecoin_df = self.filecoin_df.merge(power_stats_df, on='date', how='outer')
         self.filecoin_df['date'] = self.filecoin_df['date'].dt.date
+
+        print(self.filecoin_df.iloc[0]['date'], self.filecoin_df.iloc[-1]['date'])
 
         # add in future SE power
         se_power_stats_vec = []
@@ -602,6 +607,7 @@ class FilecoinModel(mesa.Model):
             self.filecoin_df.loc[final_historical_data_idx+1, ["network_locked"]] = locked_fil_zero
 
         ############################################################################################################
+        print(self.filecoin_df.iloc[0]['date'], self.filecoin_df.iloc[-1]['date'])
         
     def _compute_macro(self, date_in):
         # aggregate Power statistics from agents
@@ -693,7 +699,13 @@ class FilecoinModel(mesa.Model):
             # reward vesting is taken care of within the agent
 
     def _release_pledge(self, date_from, date_to, FIL_amt):
-        date_from_idx = self.filecoin_df[self.filecoin_df['date'] == date_from].index[0] if date_from is not None else None
+        # print('_release', len(self.filecoin_df), self.filecoin_df.iloc[0]['date'], self.filecoin_df.iloc[-1]['date'], self.current_day, date_from, date_to, FIL_amt)
+        ## it could be that the date_from is beyond the length of the simulation. A scenario where this might happen is
+        ## if the simulation length is shorter than pledge trying to be released that should have been released after teh simulation
+        ## ended.  
+        date_from_idx = None
+        if date_from < self.filecoin_df.iloc[-1]['date'] and date_from is not None:
+            date_from_idx = self.filecoin_df[self.filecoin_df['date'] == date_from].index[0]
         date_to_idx = self.filecoin_df[self.filecoin_df['date'] == date_to].index[0]
 
         self.filecoin_df.loc[date_to_idx, 'scheduled_pledge_release'] += FIL_amt

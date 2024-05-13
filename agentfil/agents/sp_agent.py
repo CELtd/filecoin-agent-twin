@@ -558,7 +558,7 @@ class SPAgent(mesa.Agent):
             terminate_date = self.current_date
 
         rb_active_power, qa_active_power, termination_fee, associated_pledge_to_release, date_to_release = self._trace_modeled_power(onboarding_date, terminate_date)
-        # print(onboarding_date, terminate_date, date_to_release, rb_active_power, qa_active_power, termination_fee, associated_pledge_to_release, final_duration)
+        # print(onboarding_date, terminate_date, date_to_release, rb_active_power, qa_active_power, termination_fee, associated_pledge_to_release)
         self._exec_termination(onboarding_date, terminate_date, date_to_release, termination_fee, associated_pledge_to_release, rb_active_power, qa_active_power)
     
     def terminate_all_modeled_power(self, terminate_date=None):
